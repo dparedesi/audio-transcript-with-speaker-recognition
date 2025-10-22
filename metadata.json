@@ -1,0 +1,5 @@
+{
+  "name": "Audio Transcription with Speaker Recognition",
+  "description": "An application that transcribes .m4a audio files and identifies different speakers in the conversation using the Gemini API.",
+  "requestFramePermissions": []
+}
