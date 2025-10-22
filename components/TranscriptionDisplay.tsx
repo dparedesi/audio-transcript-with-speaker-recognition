@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 
 interface TranscriptionDisplayProps {
@@ -76,6 +75,36 @@ const TranscriptionDisplay: React.FC<TranscriptionDisplayProps> = ({ transcripti
     URL.revokeObjectURL(url);
   };
 
+  const handleShare = async () => {
+    const content = generateDownloadContent('md');
+    const file = new File([content], "transcription.md", { type: "text/markdown" });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          title: 'Transcription',
+          files: [file],
+          text: 'Here is the transcription.',
+        });
+      } catch (error) {
+        if (error instanceof Error && error.name !== 'AbortError') {
+          console.error('Error sharing file:', error);
+        }
+      }
+    } else {
+      try {
+        await navigator.share({
+          title: 'Transcription',
+          text: content,
+        });
+      } catch (error) {
+        if (error instanceof Error && error.name !== 'AbortError') {
+          console.error('Error sharing text:', error);
+        }
+      }
+    }
+  };
+
   return (
     <div className="w-full bg-slate-900/50 rounded-lg p-6 border border-slate-700">
       
@@ -85,6 +114,9 @@ const TranscriptionDisplay: React.FC<TranscriptionDisplayProps> = ({ transcripti
             <div className="flex items-center gap-2 flex-shrink-0">
                 <button onClick={() => handleDownload('txt')} className="px-3 py-1.5 text-sm font-semibold bg-slate-700 text-slate-200 rounded-md hover:bg-slate-600 transition-colors">Download .txt</button>
                 <button onClick={() => handleDownload('md')} className="px-3 py-1.5 text-sm font-semibold bg-slate-700 text-slate-200 rounded-md hover:bg-slate-600 transition-colors">Download .md</button>
+                {typeof navigator.share === 'function' && (
+                  <button onClick={handleShare} className="px-3 py-1.5 text-sm font-semibold bg-indigo-600 text-white rounded-md hover:bg-indigo-500 transition-colors">Share</button>
+                )}
             </div>
         )}
       </div>
